@@ -33,17 +33,17 @@ head(dataset2)
 
 ```r
 sum.step = with(dataset2, tapply(steps, date, sum))
-hist(sum.step, main="total steps per day", xlab='Steps')
+hist(sum.step, main="Total steps per day", xlab='Steps')
 ```
 
 ![](PA1_template_files/figure-html/statistics-1.png)<!-- -->
 
 ```r
 mean.step = format( mean(sum.step, na.rm=TRUE), nsmall=2)
-med.step  = median(sum.step, na.rm=TRUE)
+med.step  = median( sum.step, na.rm=TRUE )
 ```
 
-Mean steps taken per day is 10766.19. Median steps taken per day is 10765.
+Mean steps taken per day was 10766.19. Median steps taken per day was 10765.
 
 
 ## What is the average daily activity pattern?
@@ -51,6 +51,7 @@ Mean steps taken per day is 10766.19. Median steps taken per day is 10765.
 
 ```r
 ave.step = with(dataset2, tapply(steps, interval, mean))
+
 plot(names(ave.step), ave.step, type="l", lwd=2, las=1,
      xlab = 'Interval', ylab = 'Average steps',  main='Daily activity')
 ```
@@ -66,14 +67,17 @@ Among all the 5-minutes intervals, the interval which contains the maximum avera
 
 ## Imputing missing values
 
+
 ```r
 na.num <- sum(is.na(dataset$steps))
 
 dataset3 = dataset
+
+# Fill missing values with mean of all 5-minute intervals
 dataset3$steps[is.na(dataset3$steps)] = mean(dataset2$steps)
 
 sum.step2 = with(dataset3, tapply(steps, date, sum))
-hist(sum.step2, main="total steps per day", xlab = 'Steps')
+hist(sum.step2, main="Total steps per day", xlab = 'Steps')
 ```
 
 ![](PA1_template_files/figure-html/missingvalue-1.png)<!-- -->
@@ -86,7 +90,7 @@ The number of missing value in dataset was 2304.
 
 After imputing missing data, mean steps taken per day became 10766.19, and median steps taken per day became 10766.19.   
 
-The mean and mediam were not affected so much but the shape of histgram became sharper distribution than previous histgram as the missing values were replaced with average of total taily numper of steps.   
+The mean and mediam were not affected so much but the bin containing mean value (1000-1500) got higher as the missing values were replaced with average of total daily numper of steps. It made the shape of histgram sharper distribution than previous histgram.    
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
@@ -101,9 +105,10 @@ dataset3$days = factor(1*(weekdays(as.Date(dataset3$date)) %in% c('Sunday', 'Sat
 
 ds <- dataset3 %>%
         group_by(days, interval) %>%
-            summarise( step.mean = mean(steps)) 
+            summarise( step.mean = mean(steps) ) 
 
-ggplot(ds, aes(interval, step.mean)) + geom_line() + facet_grid(days~.)
+ggplot(ds, aes(interval, step.mean)) + geom_line() + facet_grid(days~.) +
+    labs(x='Interval', y='Average steps', title='Daily activity - weekday vs weekend')
 ```
 
-![](PA1_template_files/figure-html/compare.days-1.png)<!-- -->
+![](PA1_template_files/figure-html/compare-days-1.png)<!-- -->
